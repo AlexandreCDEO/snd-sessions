@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:3333
+
+# @name create_user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+    "name": "Rosana Pereira",
+    "email": "ro.pereira01@gmail.com",
+    "username": "ropereira01",
+    "password": "123456"
+}
+
+###
+
+# @name create_session
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+    "username": "ropereira",
+    "password": "123456"
+}
+
+###
+
+# @name search_profile
+GET {{baseUrl}}/profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI4MDY4LCJpYXQiOjE3MjcyMzkzMzB9.CLT7uSS6mV-Zf82dBl5BU40crWcs-mduiNkIuwAhktGIc7sZ_fupHq1TbnkY7swAAJOiXp2Th-j71TbrMBhIrUzn2pRM0i4mXTjiELlGsiIleWN_G5ogCLYCaW8w3R9u1r3zF5IwualJGAL9skxpIbDFgnk6-X0MJeI-zNmjd9QwIy4kJmqCyN3d8p4Q1mdylOSywEZEhCw3Q1cqyFTLSmyJu7UNaOlMvrh_AN1yS1NnwjCfVXDQnpqhMrZjYRSDz7WO-6FpktPh8vT0SHM6fmUHJmJx_X5MbF48zGGqvlGRhhtaaNq-0Gn07PsB8toVyl2MM8por8gG3Rzvs2FozQ
+
+
+
+

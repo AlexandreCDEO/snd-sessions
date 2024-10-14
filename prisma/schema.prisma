@@ -1,0 +1,21 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model secuser {
+    secuserid              Int       @id @default(autoincrement())
+    secusername            String    @db.VarChar(100)
+    secuserpassword        String?   @db.VarChar(100)
+    secuseractive          Boolean?
+    secuserdatacadastro    DateTime? @db.Timestamp(6)
+    secusersenhaprovisoria Boolean?
+    secuserbloqueado       Boolean?
+    secusernamecomp        String?   @db.VarChar(100)
+    secuseremail           String?   @db.VarChar(100)
+    secuserstatus          String?   @db.VarChar(1)
+}
