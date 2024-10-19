@@ -1,21 +1,557 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model secuser {
-    secuserid              Int       @id @default(autoincrement())
-    secusername            String    @db.VarChar(100)
-    secuserpassword        String?   @db.VarChar(100)
-    secuseractive          Boolean?
-    secuserdatacadastro    DateTime? @db.Timestamp(6)
-    secusersenhaprovisoria Boolean?
-    secuserbloqueado       Boolean?
-    secusernamecomp        String?   @db.VarChar(100)
-    secuseremail           String?   @db.VarChar(100)
-    secuserstatus          String?   @db.VarChar(1)
+model Empresa {
+  empresaid                    Int                            @id @default(dbgenerated("nextval('empresaid'::regclass)"))
+  empresacnpj                  String                         @db.VarChar(14)
+  empresanome                  String                         @db.VarChar(256)
+  empresanomefantasia          String                         @db.VarChar(40)
+  empresatemaid                Int?                           @db.SmallInt
+  empresaambiente              Int?                           @db.SmallInt
+  empresaativo                 Boolean
+  empnom                       String?                        @db.Char(15)
+  emprzo                       String?                        @db.Char(40)
+  empresacodinep               BigInt?
+
+  secretariasarredondamento    SecretariaArredondamento[]
+  matriculas                   Matricula[] 
+  areasconhecimento            AreaConhecimento[]
+  cursos                       Curso[]
+  turmas                       Turma[] 
+  matrizesCurriculares         Matrizcurricular[]
+  periodosEscolares            Periodoescolar[]
+  turnos                       Turno[]
+  participantes                Participante[]
+  participanteFiliais          ParticipanteFilial[]
+  cargos                       Cargo[]
+  departamentos                Departamento[]
+  politicasSeguranca           PolSegNro[]
+  matriculaPeriodoEscolares    MatriculaPeriodoEscolar[]
+  grupoempresaempresas         GrupoEmpresaEmpresa[]
+  @@map("empresa")
 }
+
+model Participante {
+  participantecodigo           BigInt
+  participantetipopessoa       String?                        @db.Char(1)
+  participanterazaosocial      String?                        @db.Char(50)
+  participantedatacadastro     DateTime?                      @db.Date
+  participanteusuariolog       String?                        @db.Char(15)
+  participantepgmlog           String?                        @db.Char(128)
+  participantedatalog          DateTime?                      @db.Timestamp(6)
+  participantestatus           Boolean?
+
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                    Int
+
+  matrizcurricularAtivacao  Matrizcurricular[] @relation("ParticipanteAtivacao")
+  matrizcurricularDesativacao Matrizcurricular[] @relation("ParticipanteDesativacao")
+
+  participanteFiliais ParticipanteFilial[]
+ 
+  @@id([empresaid, participantecodigo])
+
+  @@map("participante")
+}
+
+model Muncadf {
+  mufcod                     Int                          @id
+  mufdsc                     String?                      @db.Char(50)
+  estcod                     String?                      @db.Char(2)
+  mufsts                     String?                      @db.Char(1)
+  mufusucod                  String?                      @db.Char(15)
+  dddcod                     Int?                         @db.SmallInt
+  mufcoddne                  Int?
+  mufcodgia                  Int?
+  
+  participanteFiliais        ParticipanteFilial[]
+
+  @@map("muncadf")
+}
+
+model OrgaoExpedidor {
+  orgaoexpedidorid    Int                  @id
+  orgaoexpedidorsigla String               @db.VarChar(8)
+  orgaoexpedidornome  String               @db.VarChar(128)
+  orgaoexpedidortipo  Int
+
+  participanteFiliais  ParticipanteFilial[]
+
+  @@index([orgaoexpedidornome], map: "idx_orgaoexpedidornome")
+  @@index([orgaoexpedidorsigla], map: "idx_orgaoexpedidorsigla")
+
+  @@map("orgaoexpedidor")
+}
+
+model Departamento {
+  departamentocodigo          Int
+  departamentonome            String?   @db.VarChar(60)
+  departamentosuperiorcodigo  Int?
+  departamentogerente         Int?
+  departamentocodigocontabil  String?   @db.VarChar(60)
+  departamentonomecontabil    String?   @db.VarChar(60)
+  departamentonivelcontabil   String?   @db.VarChar(20)
+  departamentocontrolaestoque Boolean?
+  departamentopgmlog          String?   @db.VarChar(128)
+  departamentousucod          String?   @db.Char(15)
+  departamentodtalog          DateTime? @db.Timestamp(6)
+  departamentocodigoexterno   BigInt?
+  departamentoativo           Boolean?
+
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                   Int
+
+  cargos                      Cargo[]
+
+  @@id([empresaid, departamentocodigo])
+  @@unique([empresaid, departamentocodigoexterno], map: "uniquedepartamentocodigoexterno")
+
+  @@map("departamento")
+}
+
+model Cargo {
+  cargocodigo            Int
+  cargonome              String?              @db.VarChar(60)
+  cargocbo               String?              @db.VarChar(60)
+  cargoportaria          String?              @db.VarChar(60)
+  cargodescricao         String?              @db.VarChar(100)
+  cargoresponsabilidades String?              @db.VarChar(100)
+  
+  cargoativo             Boolean?
+  cargopgmlog            String?              @db.VarChar(128)
+  cargousucod            String?              @db.Char(15)
+  cargodtalog            DateTime?            @db.Timestamp(6)
+  cargogerencia          Boolean?
+  cargocodigoexterno     BigInt?
+
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid              Int
+
+  departamento  Departamento? @relation(fields: [empresaid, departamentocodigo], references: [empresaid, departamentocodigo])
+  departamentocodigo     Int?
+
+  participanteFiliais    ParticipanteFilial[]
+
+  @@id([empresaid, cargocodigo])
+  @@unique([empresaid, cargonome], map: "ucargo")
+  @@index([empresaid, departamentocodigo], map: "icargo1")
+
+  @@map("cargo")
+}
+
+model Genero {
+  generoid            Int                  @id @default(autoincrement()) @db.SmallInt
+  generonome          String?              @db.Char(50)
+  generoflgativo      Boolean?
+  generoorientacaoflg String?              @db.Char(1)
+
+  participanteFiliais ParticipanteFilial[]
+
+  @@map("genero")
+}
+
+model ParticipanteFilial {
+  participantefilialcodigo                                                                                                                           Int                            @db.SmallInt
+  participantenomecompleto                                                                                                                           String?                        @db.VarChar(50)
+  participantefilialstatus                                                                                                                           Boolean?
+  participantefilialsexo                                                                                                                             String?                        @db.Char(1)
+  participantefilialnacionalidadepais                                                                                                                Int?                           @db.SmallInt
+  participantefilialnacionalidade                                                                                                                    String?                        @db.VarChar(50)
+  participantefilialnacionalidadeuf                                                                                                                  String?                        @db.Char(2)
+  participantefilialnacionalidadeestrangeiro                                                                                                         String?                        @db.VarChar(60)
+  participantefilialnomefantasia                                                                                                                     String?                        @db.Char(50)
+  participantefilialcnpj                                                                                                                             BigInt?
+  participantefilialrg                                                                                                                               String?                        @db.VarChar(50)
+  participantefilialrguf                                                                                                                             String?                        @db.Char(3)
+  participantefilialdocumentosubstituto                                                                                                              String?                        @db.VarChar(60)
+  participantefilialdocumentosubstitutoid                                                                                                            String?                        @db.VarChar(60)
+  participantefilialnascimento                                                                                                                       DateTime?                      @db.Date
+  participantefilialdataconclusao                                                                                                                    DateTime?                      @db.Date
+  participantefilialqtddiasper                                                                                                                       Int?                           @db.SmallInt
+  participantefilialregimetributario                                                                                                                 String?                        @db.Char(20)
+  participantefilialcodexterno                                                                                                                       String?                        @db.Char(15)
+  participantefilialretws                                                                                                                            String?                        @db.VarChar(1024)
+  participantefilialdatady                                                                                                                           DateTime?                      @db.Timestamp(6)
+  participantefilialcustomeridlinx                                                                                                                   BigInt?
+  participantefilialtransportadora                                                                                                                   Int?
+  participantefilialgrupocontabil                                                                                                                    Int?                           @db.SmallInt
+  participantefilialregiaogeografica                                                                                                                 String?                        @db.Char(2)
+  participantefilialsubstituidoicms                                                                                                                  String?                        @db.Char(1)
+  participantefilialgeraspd                                                                                                                          String?                        @db.Char(1)
+  participantefilialtipo                                                                                                                             String?                        @db.VarChar(40)
+  participantefilialterceirocargo                                                                                                                    String?                        @db.VarChar(60)
+  participantefilialcodigoinep                                                                                                                       String?                        @db.Char(8)
+  participantefilialpgmlog                                                                                                                           String?                        @db.Char(128)
+  participantefilialusuariolog                                                                                                                       String?                        @db.Char(15)
+  participantefilialdatalog                                                                                                                          DateTime?                      @db.Timestamp(6)
+  participantefilialinscricaoestadual                                                                                                                String?                        @db.Char(18)
+  participantefilialcorraca                                                                                                                          Int?                           @db.SmallInt
+  participantefilialnomesocial                                                                                                                       String?                        @db.VarChar(100)
+  
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                    Int                                                                                                                                       
+
+  participante Participante? @relation(fields: [empresaid, participantecodigo], references: [empresaid, participantecodigo])
+  participantecodigo BigInt
+
+  municipio Muncadf? @relation(fields: [participantefilialnacionalidadecodmunicipio], references: [mufcod])
+  participantefilialnacionalidadecodmunicipio                                                                                                        Int?
+
+  orgaoExpedidor OrgaoExpedidor? @relation(fields: [participantefilialrgorgaoexpedidor], references: [orgaoexpedidorid])
+  participantefilialrgorgaoexpedidor                                                                                                                 Int?                           @db.SmallInt
+
+  cargo Cargo? @relation(fields: [participantefilialcargoempresaid, participantefilialcargocodigo], references: [empresaid, cargocodigo])
+  participantefilialcargoempresaid                                                                                                                   Int?
+  participantefilialcargocodigo                                                                                                                      Int?
+
+  genero Genero? @relation(fields: [generoid], references: [generoid])
+  generoid                                                                                                                                           Int?                           @db.SmallInt
+  
+  @@id([empresaid, participantecodigo, participantefilialcodigo])
+
+  @@map("participantefilial")
+}
+
+model SecUser {
+  secuserid               Int                       @id @default(autoincrement())
+  secusername             String                    @db.VarChar(100)
+  secuserpassword         String?                   @db.VarChar(100)
+  secuseractive           Boolean?
+  secuserdatacadastro     DateTime?                 @db.Timestamp(6)
+  secusersenhaprovisoria  Boolean?
+  secuserbloqueado        Boolean?
+  secusernamecomp         String?                   @db.VarChar(100)
+  secuseremail            String?                   @db.VarChar(100)
+  secuserstatus           String?                   @db.VarChar(1)
+
+  @@map("secuser")
+}
+
+model Matricula {
+  matriculacodigo                              String                           @unique(map: "umatricula001") @db.Char(15)
+  alunoparticipantecod                         BigInt?
+  alunoparticipantefilialcod                   Int?                             @db.SmallInt
+  matriculasituacaoacademica                   String?                          @db.Char(1)
+  matriculaidpf                                String?                          @db.VarChar(40)
+  matriculaidmoodle                            String?                          @db.VarChar(100)
+  matriculasituacaoaluno                       Boolean?
+  matriculadatacadastro                        DateTime?                        @db.Timestamp(6)
+  periodoescolarid                             Decimal?                         @db.Decimal(9, 0)
+  periodoescolaratualid                        Int?
+  
+  empresa                                     Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                                   Int
+
+  curso                                       Curso? @relation(fields: [empresaid, cursocodigo], references: [empresaid, cursocodigo])
+  cursocodigo                                 BigInt?
+
+  turma                                       Turma? @relation(fields: [empresaid, turmacodigo, cursocodigo], references: [empresaid, turmacodigo, cursocodigo])
+  turmacodigo                                 Int?
+
+  matriculaPeriodoEscolares    MatriculaPeriodoEscolar[]
+  
+  @@id([empresaid, matriculacodigo])
+  @@index([empresaid, turmacodigo, cursocodigo], map: "imatricula4")
+  
+  @@map("matricula")
+}
+
+model AreaConhecimento {
+  areaconhecimentocodigo    Int
+  areaconhecimentonome      String?               @db.VarChar(60)
+  areaconhecimentoprincipal Int?
+  areaconhecimentodescricao String?               @db.VarChar(100)
+  areaconhecimentoativo     Boolean?
+  areaconhecimentopgmlog    String?               @db.VarChar(128)
+  areaconhecimentousucod    String?               @db.Char(15)
+  areaconhecimentodtalog    DateTime?             @db.Timestamp(6)
+
+  empresa                   Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                 Int
+
+  cursos                    Curso[] 
+
+  @@id([empresaid, areaconhecimentocodigo])
+  @@unique([areaconhecimentocodigo, empresaid])
+
+  @@map("areaconhecimento")
+}
+
+model SecretariaArredondamento {
+  secretariaarredondamentoid        Int
+  secretariarangeminmeio            Decimal? @db.Decimal(3, 2)
+  secretariarangemaxmeio            Decimal? @db.Decimal(3, 2)
+  secretariarangemininteiro         Decimal? @db.Decimal(3, 2)
+  secretariarangemaxinteiro         Decimal? @db.Decimal(3, 2)
+  secretariaarredondamentodescricao String?  @db.VarChar(60)
+
+  empresa                           Empresa  @relation(fields: [empresaid], references: [empresaid])
+  empresaid                         Int      @db.SmallInt
+
+  cursos Curso[]
+
+  @@id([empresaid, secretariaarredondamentoid])
+
+  @@map("secretariaarredondamento")
+}
+
+model Curso {
+  cursocodigo                      BigInt
+  cursonome                        String?       @db.VarChar(150)
+  cursoativo                       Boolean
+  cursodocumentacaonome            String?       @db.VarChar(150)
+  cursohabilitacao                 String?       @db.VarChar(60)
+  cursoobjetivos                   String?
+  cursodescricao                   String?       @db.VarChar(2000)
+  cursopublicoalvo                 String?
+  cursoperfilegresso               String?
+  cursoniveleducacional            String?       @db.VarChar(40)
+  cursotitulo                      String?       @db.VarChar(40)
+  cursomodalidade                  String?       @db.VarChar(40)
+  cursotitulacaoformandomasculino  String?       @db.VarChar(150)
+  cursotitulacaoformandofeminino   String?       @db.VarChar(150)
+  cursoautorizacao                 String?       @db.VarChar(150)
+  cursodataautorizacao             DateTime?
+  cursoregimeaprovacao             String?       @db.VarChar(40)
+  cursoregime                      String?       @db.VarChar(40)
+  cursoidinep                      BigInt?
+  funcionariocodigo                Int?
+  cursoqtddisciplinaop             Int?
+  cursopercentualevoacaingresenade Float?        
+  cursopercentualevoacaconcluinteenade Float?    
+  cursopreposicao                  String?       @db.VarChar(20)
+  cursocodigoinep                  String?       @db.Char(8)
+  cursodtalog                      DateTime?
+  cursopgmlog                      String?       @db.VarChar(128)
+  cursousucod                      String?       @db.Char(15)
+  
+  empresa                         Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                       Int
+
+  areaConhecimento                AreaConhecimento? @relation(fields: [areaconhecimentocodigo, empresaid], references: [areaconhecimentocodigo, empresaid])
+  areaconhecimentocodigo          Int?
+
+  secretariaArredondamento        SecretariaArredondamento? @relation(fields: [empresaid, secretariaarredondamentoid], references: [empresaid, secretariaarredondamentoid])
+  secretariaarredondamentoid      Int?
+
+  turmas                          Turma[]
+  
+  matriculas                      Matricula[]
+
+  MatrizesCurriculares            Matrizcurricular[]
+
+  @@id([empresaid, cursocodigo])
+
+  @@map("curso")
+}
+
+model Matrizcurricular {
+  matrizcurricularstatus                                                                                Boolean?
+  matrizcurriculacodigo                                                                                 Int
+  matrizcurricularnome                                                                                  String?                                  @db.Char(50)
+  matrizcurriculardatacadastro                                                                          DateTime?                                @db.Date
+  matrizcurricularvigencia                                                                              DateTime?                                @db.Date
+  matrizcurricularcargahoraria                                                                          Int?                                     @db.SmallInt
+  matrizcurricularchestagio                                                                             Int?                                     @db.SmallInt
+  matrizcurricularchatvcomp                                                                             Int?                                     @db.SmallInt
+  matrizcurricularchobrigatoria                                                                         Int?                                     @db.SmallInt
+  matrizcurricularchoptativa                                                                            Int?                                     @db.SmallInt
+  matrizcurricularsituacao                                                                              String?                                  @db.VarChar(40)
+  matrizcurriculardataativacao                                                                          DateTime?                                @db.Date 
+  matrizcurriculardatadesativacao                                                                       DateTime?                                @db.Date
+  matrizcurricularqtddiscoptexpdip                                                                      Int?                                     @db.SmallInt
+  matrizcurricularmesesconclusaomatriz                                                                  Int?                                     @db.SmallInt
+  matrizcurricularhabilitacao                                                                           String?                                  @db.VarChar(60)
+  matrizcurricularobservacao                                                                            String?                                  @db.VarChar(255)
+  matrizcurricularcompetenciaprofissional                                                               String?                                  @db.VarChar(255)
+  matrizcurricularresolucao                                                                             String?                                  @db.VarChar(255)
+  matrizcurricularsistemaavaliacao                                                                      String?                                  @db.VarChar(255)
+  matrizcurricularcursoperiodicidade                                                                    Int?
+  matrizcurricularquantidadeperiodo                                                                     Int?                                     @db.SmallInt
+  matrizcurricularfinalizada                                                                            Boolean?
+  
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                                                                                             Int
+
+  curso Curso? @relation(fields: [empresaid, cursocodigo], references: [empresaid, cursocodigo])
+  cursocodigo                                                                                           BigInt
+
+  participanteAtivacao Participante? @relation("ParticipanteAtivacao", fields: [empresaid, matrizcurricularresponsavelativacao], references: [empresaid, participantecodigo])
+  matrizcurricularresponsavelativacao BigInt?
+
+  participanteDesativacao Participante? @relation("ParticipanteDesativacao", fields: [empresaid, matrizcurricularresponsaveldesativacao], references: [empresaid, participantecodigo])
+  matrizcurricularresponsaveldesativacao BigInt?
+
+  turmas Turma[]
+
+  @@id([empresaid, cursocodigo, matrizcurriculacodigo])
+
+  @@map("matrizcurricular")
+}
+
+model Periodoescolar {
+  periodoescolarid                                                                                            Int
+  periodoescolarnome                                                                                          String?                        @unique(map: "uperiodoescolar") @db.Char(50)
+  periodoescolardatainicial                                                                                   DateTime?                      @db.Date
+  periodoescolardatafinal                                                                                     DateTime?                      @db.Date
+  periodoescolarmodalidade                                                                                    String?                        @db.VarChar(40)
+  periodoescolaranocompetencia                                                                                Int?
+  periodoescolarmescompetencia                                                                                Int?
+  periodoescolarmescompetenciafinal                                                                           Int?                           @db.SmallInt
+  periodoescolaranocompetenciafinal                                                                           Int?                           @db.SmallInt
+  periodoescolarpgmlog                                                                                        String?                        @db.VarChar(128)
+  periodoescolarusucod                                                                                        String?                        @db.Char(15)
+  periodoescolardtalog                                                                                        DateTime?                      @db.Timestamp(6)
+
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                                                                                                   Int
+
+  turmas                                                                                                      Turma[]
+  matriculaPeriodoEscolares    MatriculaPeriodoEscolar[]
+
+  @@id([empresaid, periodoescolarid])
+
+  @@map("periodoescolar")
+}
+
+model Turno {
+  turnocodigo                  Int
+  turnodescricaocontrato       String?       @db.VarChar(256)
+  turnotipohorario             String?       @db.Char(20)
+  turnohoraaulasessentaminutos Boolean?
+  turnohorariovisaoaluno       Boolean?
+  turnohorariovisaoprofessor   Boolean?
+  turnonome                    String?       @unique(map: "uturno") @db.Char(50)
+  
+  empresa                      Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                    Int
+
+  turmas                        Turma[]
+
+  @@id([empresaid, turnocodigo])
+
+  @@map("turno")
+}
+
+model Turma {
+  turmacodigo                                                       Int
+  turmaid                                                           String?                      @db.VarChar(60)
+  turmadigito                                                       String?                      @db.Char(1)
+  turmasala                                                         String?                      @db.Char(40)
+  turmasituacao                                                     String?                      @db.VarChar(10)
+  turmaperiodoletivo                                                String?                      @db.VarChar(40)
+  turmanumerovagas                                                  Decimal?                     @db.Decimal(7, 1)
+  turmanumerominmatricula                                           Int?                         @db.SmallInt
+  turmanumeromaximo                                                 Int?                         @db.SmallInt
+  turmanumeroreposicao                                              Int?                         @db.SmallInt
+  turmaativo                                                        Boolean?
+  turmapgmlog                                                       String?                      @db.VarChar(128)
+  turmausucod                                                       String?                      @db.Char(15)
+  turmadtalog                                                       DateTime?                    @db.Timestamp(6)
+
+  empresa                                                           Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                                                         Int
+
+  curso                                                             Curso? @relation(fields: [empresaid, cursocodigo], references: [empresaid, cursocodigo])
+  cursocodigo                                                       BigInt
+
+  matrizCurricular                                                  Matrizcurricular? @relation(fields: [empresaid, cursocodigo, turmamatrizcurricular], references: [empresaid, cursocodigo, matrizcurriculacodigo])
+  turmamatrizcurricular                                             Int?
+
+  turno                                                             Turno? @relation(fields: [empresaid, turmaturno], references: [empresaid, turnocodigo])
+  turmaturno                                                        Int?
+
+  periodoescolar                                                    Periodoescolar? @relation(fields: [turmaperiodoempresaid, turmaperiodoescolarid], references: [empresaid, periodoescolarid])
+  turmaperiodoempresaid                                             Int?
+  turmaperiodoescolarid                                             Int?
+
+  matriculas                                                        Matricula[]
+
+  @@id([empresaid, turmacodigo, cursocodigo])
+  @@index([empresaid, cursocodigo, turmamatrizcurricular], map: "iturma1")
+  @@index([empresaid, cursocodigo, turmaturno], map: "iturma2")
+  @@index([turmaperiodoempresaid, cursocodigo], map: "iturma5")
+  @@index([turmaperiodoempresaid, turmaperiodoescolarid], map: "iturma6")
+
+  @@map("turma")
+}
+
+model PolSegNro {
+  empresadatavigenciaseg     DateTime @db.Timestamp(6)
+  empresatipopoliticaseg     Int      @db.SmallInt
+  empresaautenticawindowsseg Int      @db.SmallInt
+  usuarioseg                 String   @db.Char(15)
+
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                  Int
+
+  @@id([empresaid, empresadatavigenciaseg, empresatipopoliticaseg])
+
+  @@map("polsegnro")
+}
+
+model SecUserPass {
+  secuserid       Int
+  secuserpassdata DateTime @db.Timestamp(6)
+  secuserpassreg  String   @db.VarChar(100)
+
+  @@id([secuserid, secuserpassdata])
+
+  @@map("secuserpass")
+}
+
+model MatriculaPeriodoEscolar {
+  
+  matriculaperiodostatus        String?        @db.Char(1)
+
+  empresa Empresa @relation(fields: [empresaid], references: [empresaid])
+  empresaid                     Int
+
+  matricula                     Matricula      @relation(fields: [empresaid, matriculacodigo], references: [empresaid, matriculacodigo])
+  matriculacodigo               String         @db.Char(15)
+
+  periodoescolar                Periodoescolar @relation(fields: [empresaid, matriculaperiodoescolarid], references: [empresaid, periodoescolarid])
+  matriculaperiodoescolarid     Int
+
+  @@id([empresaid, matriculacodigo, matriculaperiodoescolarid])
+  @@index([empresaid, matriculaperiodoescolarid], map: "imatriculaperiodo3")
+
+  @@map("matriculaperiodoescolar")
+}
+
+model GrupoEmpresa {
+  grupoempresaid        Int                   @id @default(autoincrement())
+  grupoempresadesc      String                @db.VarChar(100)
+  grupoempresaativo     Boolean
+  grupoempresaprincipal Boolean
+
+  grupoempresaempresas   GrupoEmpresaEmpresa[]
+
+  @@map("grupoempresa")
+}
+
+model GrupoEmpresaEmpresa {
+  empresaprincipal       Boolean
+  empresacontabilizadora Boolean
+
+  empresa                Empresa      @relation(fields: [empresaid], references: [empresaid])
+  empresaid              Int
+
+  grupoempresa           GrupoEmpresa @relation(fields: [grupoempresaid], references: [grupoempresaid])
+  grupoempresaid         Int
+
+  @@id([grupoempresaid, empresaid])
+
+  @@map("grupoempresaempresa")
+}
+
+
+
+
+
