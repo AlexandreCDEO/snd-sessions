@@ -37,13 +37,11 @@ export class AuthenticateUseCase {
       user.createdAt,
       OperationType.DESCRIPTOGRAFAR,
     )
-    console.log(dectyptedPassword)
+
     if (!dectyptedPassword) {
       return failure(new PasswordEncryptionError())
     }
 
-    console.log(dectyptedPassword)
-    console.log(password)
     if (dectyptedPassword !== password) {
       return failure(new WrongCredentialsError())
     }
