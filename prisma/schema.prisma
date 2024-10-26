@@ -551,6 +551,20 @@ model GrupoEmpresaEmpresa {
   @@map("grupoempresaempresa")
 }
 
+model UsuOco {
+  usucod    String   @db.VarChar(100)
+  usudtaoco DateTime @db.Timestamp(6)
+  usutipoco String   @db.Char(2)
+  usumenoco String?  @db.Char(100)
+  usucoddes String?  @db.Char(15)
+  usuocotst String?  @db.VarChar(1)
+
+  @@id([usucod, usudtaoco, usutipoco])
+  @@index([usucod, usudtaoco(sort: Desc)], map: "uusua083")
+
+  @@map("usuoco")
+}
+
 
 
 
