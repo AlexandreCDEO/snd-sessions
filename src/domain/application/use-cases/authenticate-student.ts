@@ -156,14 +156,16 @@ export class AuthenticateStudentUseCase {
     const registrations =
       await this.registrationsRepository.findByDocument(username)
 
-    if (registrations.length > 1) {
-      return registrations
-    }
+    if (registrations) {
+      if (registrations.length > 1) {
+        return registrations
+      }
 
-    if (registrations.length === 1) {
-      return this.usersRepository.findByUsername(
-        registrations[0].matriculacodigo,
-      )
+      if (registrations.length === 1) {
+        return this.usersRepository.findByUsername(
+          registrations[0].matriculacodigo,
+        )
+      }
     }
 
     return null

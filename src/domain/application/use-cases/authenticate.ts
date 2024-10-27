@@ -27,7 +27,7 @@ export class AuthenticateUseCase {
     password,
   }: AuthenticaUseCaseProps): Promise<AuthenticateUseCaseResponse> {
     const user = await this.repository.findByUsername(username.toUpperCase())
-    console.log(user)
+
     if (!user) {
       return failure(new WrongCredentialsError())
     }
