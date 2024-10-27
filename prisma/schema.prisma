@@ -213,6 +213,8 @@ model ParticipanteFilial {
   genero Genero? @relation(fields: [generoid], references: [generoid])
   generoid                                                                                                                                           Int?                           @db.SmallInt
   
+  matriculas Matricula[]
+
   @@id([empresaid, participantecodigo, participantefilialcodigo])
 
   @@map("participantefilial")
@@ -235,14 +237,12 @@ model SecUser {
 
 model Matricula {
   matriculacodigo                              String                           @unique(map: "umatricula001") @db.Char(15)
-  alunoparticipantecod                         BigInt?
-  alunoparticipantefilialcod                   Int?                             @db.SmallInt
   matriculasituacaoacademica                   String?                          @db.Char(1)
   matriculaidpf                                String?                          @db.VarChar(40)
   matriculaidmoodle                            String?                          @db.VarChar(100)
   matriculasituacaoaluno                       Boolean?
   matriculadatacadastro                        DateTime?                        @db.Timestamp(6)
-  periodoescolarid                             Decimal?                         @db.Decimal(9, 0)
+  periodoescolarid                             Int?                         
   periodoescolaratualid                        Int?
   
   empresa                                     Empresa @relation(fields: [empresaid], references: [empresaid])
@@ -253,6 +253,10 @@ model Matricula {
 
   turma                                       Turma? @relation(fields: [empresaid, turmacodigo, cursocodigo], references: [empresaid, turmacodigo, cursocodigo])
   turmacodigo                                 Int?
+
+  participanteFilial                           ParticipanteFilial? @relation(fields: [empresaid, alunoparticipantecod, alunoparticipantefilialcod], references: [empresaid, participantecodigo, participantefilialcodigo])
+  alunoparticipantecod                         BigInt?
+  alunoparticipantefilialcod                   Int?                             @db.SmallInt
 
   matriculaPeriodoEscolares    MatriculaPeriodoEscolar[]
   

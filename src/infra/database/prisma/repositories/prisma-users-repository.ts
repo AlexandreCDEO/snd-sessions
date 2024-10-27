@@ -10,7 +10,7 @@ export class PrismaUsersRepository implements UsersRepository {
   constructor(private prisma: PrismaService) {}
   async searchUsers(page: number, perPage: number): Promise<User[]> {
     const skip = (page - 1) * perPage // Calcular quantos registros pular
-    const users = await this.prisma.secuser.findMany({
+    const users = await this.prisma.secUser.findMany({
       skip,
       take: perPage,
     })
@@ -19,12 +19,12 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async countUsers(): Promise<number> {
-    const totalUsers = await this.prisma.secuser.count() // Contagem de todos os usuários
+    const totalUsers = await this.prisma.secUser.count() // Contagem de todos os usuários
     return totalUsers
   }
 
   async findById(userId: number): Promise<User | null> {
-    const user = await this.prisma.secuser.findUnique({
+    const user = await this.prisma.secUser.findUnique({
       where: {
         secuserid: userId,
       },
@@ -38,7 +38,7 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async create(user: User): Promise<User | null> {
-    const userCreated = await this.prisma.secuser.create({
+    const userCreated = await this.prisma.secUser.create({
       data: PrismaUsersMapper.toPrisma(user),
     })
 
@@ -50,7 +50,7 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    const user = await this.prisma.secuser.findFirst({
+    const user = await this.prisma.secUser.findFirst({
       where: {
         secusername: username.toUpperCase(),
       },
@@ -64,7 +64,7 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.prisma.secuser.findFirst({
+    const user = await this.prisma.secUser.findFirst({
       where: {
         secuseremail: email,
       },

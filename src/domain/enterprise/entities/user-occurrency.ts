@@ -5,8 +5,8 @@ interface UserOccurrencyProps {
   usuCod: string
   usuDtaOco: Date
   usuTipOco: TypeOccurrency
-  usuMenOco: string
-  UsuCodDes?: string
+  usuMenOco?: string | null
+  UsuCodDes?: string | null
 }
 
 export class UserOccurrency extends Entity<UserOccurrencyProps> {

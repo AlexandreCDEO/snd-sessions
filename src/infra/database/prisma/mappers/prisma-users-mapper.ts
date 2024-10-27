@@ -1,4 +1,4 @@
-import { secuser as PrismaUser, Prisma } from '@prisma/client'
+import { SecUser as PrismaUser, Prisma } from '@prisma/client'
 import { User } from 'src/domain/enterprise/entities/user'
 
 export class PrismaUsersMapper {
@@ -17,7 +17,7 @@ export class PrismaUsersMapper {
     })
   }
 
-  static toPrisma(user: User): Prisma.secuserCreateInput {
+  static toPrisma(user: User): Prisma.SecUserCreateInput {
     return {
       secusername: user.username,
       secuseremail: user.email,

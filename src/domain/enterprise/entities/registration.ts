@@ -4,17 +4,17 @@ import { Optional } from 'src/core/types/optional'
 interface RegistrationProps {
   empresaid: number
   matriculacodigo: string
-  alunoparticipantecod?: bigint
-  alunoparticipantefilialcod?: number
-  matriculasituacaoacademica?: string
-  matriculaidpf?: string
-  matriculaidmoodle?: string
-  matriculasituacaoaluno?: boolean
-  matriculadatacadastro?: Date
-  periodoescolarid?: number
-  periodoescolaratualid?: number
-  cursocodigo?: bigint
-  turmacodigo?: number
+  alunoparticipantecod?: bigint | null
+  alunoparticipantefilialcod?: number | null
+  matriculasituacaoacademica?: string | null
+  matriculaidpf?: string | null
+  matriculaidmoodle?: string | null
+  matriculasituacaoaluno?: boolean | null
+  matriculadatacadastro?: Date | null
+  periodoescolarid?: number | null
+  periodoescolaratualid?: number | null
+  cursocodigo?: bigint | null
+  turmacodigo?: number | null
 }
 
 export class Registration extends Entity<RegistrationProps> {
