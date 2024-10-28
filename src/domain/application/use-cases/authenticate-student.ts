@@ -65,8 +65,8 @@ export class AuthenticateStudentUseCase {
     const result = await this.findStudentByUsernameOrDocument(username)
     if (!result) return failure(new WrongCredentialsError())
     if (Array.isArray(result)) {
-      const registrationCodes = result.map(
-        (registration) => registration.matriculacodigo,
+      const registrationCodes = result.map((registration) =>
+        registration.matriculacodigo.trim(),
       )
 
       return success({ registrations: registrationCodes })

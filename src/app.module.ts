@@ -13,6 +13,20 @@ import { SearchUserProfileUseCase } from './domain/application/use-cases/search-
 import { SearchUserProfileController } from './infra/http/controllers/search-user-profile.controller'
 import { SearchUsersController } from './infra/http/controllers/search-users.controller'
 import { SearchUsersUseCase } from './domain/application/use-cases/search-users'
+import { AuthenticateStudentController } from './infra/http/controllers/authenticate-student.controller'
+import { AuthenticateStudentUseCase } from './domain/application/use-cases/authenticate-student'
+import { RegistrationsRepository } from './domain/application/repositories/registrations-repository'
+import { PrismaRegistrationsRepository } from './infra/database/prisma/repositories/prisma-registrations-repository'
+import { CompanyGroupsRepository } from './domain/application/repositories/company-groups-repository'
+import { PrismaCompanyGroupsRepository } from './infra/database/prisma/repositories/prisma-company-groups-repository'
+import { CompanyCompanyGroupsRepository } from './domain/application/repositories/company-company-groups-repository'
+import { PrismaCompanyCompanyGroupsRepository } from './infra/database/prisma/repositories/prisma-company-company-groups-repository'
+import { SecuryPoliciesRepository } from './domain/application/repositories/secury-policies-repository'
+import { PrismaSecuryPoliciesRepository } from './infra/database/prisma/repositories/prisma-secury-policies-repository'
+import { SecUserPassRepository } from './domain/application/repositories/secuser-pass-repository'
+import { PrismaSecUserPassRepository } from './infra/database/prisma/repositories/prisma-secuserpass-repository'
+import { UserOccurrenciesRepository } from './domain/application/repositories/user-occurrencies-repository'
+import { PrismaUserOccurrenciesRepository } from './infra/database/prisma/repositories/prisma-user-occurrencies-repository'
 
 @Module({
   imports: [
@@ -27,6 +41,7 @@ import { SearchUsersUseCase } from './domain/application/use-cases/search-users'
     AuthenticateController,
     SearchUserProfileController,
     SearchUsersController,
+    AuthenticateStudentController,
   ],
   providers: [
     PrismaService,
@@ -34,9 +49,34 @@ import { SearchUsersUseCase } from './domain/application/use-cases/search-users'
     SearchUserProfileUseCase,
     CreateUserUseCase,
     SearchUsersUseCase,
+    AuthenticateStudentUseCase,
     {
       provide: UsersRepository,
       useClass: PrismaUsersRepository,
+    },
+    {
+      provide: RegistrationsRepository,
+      useClass: PrismaRegistrationsRepository,
+    },
+    {
+      provide: CompanyGroupsRepository,
+      useClass: PrismaCompanyGroupsRepository,
+    },
+    {
+      provide: CompanyCompanyGroupsRepository,
+      useClass: PrismaCompanyCompanyGroupsRepository,
+    },
+    {
+      provide: SecuryPoliciesRepository,
+      useClass: PrismaSecuryPoliciesRepository,
+    },
+    {
+      provide: SecUserPassRepository,
+      useClass: PrismaSecUserPassRepository,
+    },
+    {
+      provide: UserOccurrenciesRepository,
+      useClass: PrismaUserOccurrenciesRepository,
     },
   ],
 })

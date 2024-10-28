@@ -34,7 +34,6 @@ export class AuthenticateController {
   @UsePipes(new ZodValidationPipe(authenticateBodySchema))
   async handle(@Body() body: AuthenticateBodySchema) {
     const { username, password } = body
-    console.log('controller', username, password)
     const result = await this.service.execute({
       username,
       password,
@@ -56,7 +55,7 @@ export class AuthenticateController {
     }
 
     const { user } = result.value
-    console.log('user: user')
+
     const token = this.jwt.sign({
       sub: user.id,
     })

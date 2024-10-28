@@ -3,7 +3,9 @@ import { UserOccurrenciesRepository } from 'src/domain/application/repositories/
 import { UserOccurrency } from 'src/domain/enterprise/entities/user-occurrency'
 import { PrismaService } from '../prisma.service'
 import { PrismaUserOccurrenciesMapper } from '../mappers/prisma-user-occurrencies-mapper'
+import { Injectable } from '@nestjs/common'
 
+@Injectable()
 export class PrismaUserOccurrenciesRepository
   implements UserOccurrenciesRepository
 {

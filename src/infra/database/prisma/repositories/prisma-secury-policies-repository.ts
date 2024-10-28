@@ -1,7 +1,9 @@
 import { SecuryPoliciesRepository } from 'src/domain/application/repositories/secury-policies-repository'
 import { PrismaService } from '../prisma.service'
 import { SecuryPolicyType } from 'src/core/enums/security-policy-type'
+import { Injectable } from '@nestjs/common'
 
+@Injectable()
 export class PrismaSecuryPoliciesRepository
   implements SecuryPoliciesRepository
 {

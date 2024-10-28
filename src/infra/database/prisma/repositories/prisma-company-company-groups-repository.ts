@@ -3,7 +3,7 @@ import { CompanyCompanyGroupsRepository } from 'src/domain/application/repositor
 import { PrismaService } from '../prisma.service'
 
 @Injectable()
-export class PrismaCompanyCompanyGroups
+export class PrismaCompanyCompanyGroupsRepository
   implements CompanyCompanyGroupsRepository
 {
   constructor(private prisma: PrismaService) {}

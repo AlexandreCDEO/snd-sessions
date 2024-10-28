@@ -14,7 +14,7 @@ export class PrismaRegistrationsRepository implements RegistrationsRepository {
       where: {
         matriculasituacaoaluno: true,
         participanteFilial: {
-          participantefilialrg: document,
+          participantefilialcnpj: Number(document),
         },
       },
     })

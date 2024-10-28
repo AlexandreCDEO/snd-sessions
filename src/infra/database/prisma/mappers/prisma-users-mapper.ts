@@ -1,18 +1,21 @@
 import { SecUser as PrismaUser, Prisma } from '@prisma/client'
+import { convertToUserStatus } from 'src/core/enums/user-status'
 import { User } from 'src/domain/enterprise/entities/user'
 
 export class PrismaUsersMapper {
   static toDomain(raw: PrismaUser): User {
-    if (!raw.secuseremail || !raw.secusernamecomp || !raw.secuserpassword) {
-      throw new Error('Usuário inválido. verifique!')
-    }
-
     return User.create({
       id: raw.secuserid,
-      email: raw.secuseremail,
-      name: raw.secusernamecomp,
-      password: raw.secuserpassword,
+      email: raw.secuseremail ?? '',
+      name: raw.secusernamecomp ?? '',
+      password: raw.secuserpassword ?? '',
       username: raw.secusername,
+      active: raw.secuseractive ?? undefined,
+      isBlocked: raw.secuserbloqueado ?? undefined,
+      status: raw.secuserstatus
+        ? convertToUserStatus(raw.secuserstatus)
+        : undefined,
+      temporaryPassword: raw.secusersenhaprovisoria ?? undefined,
       createdAt: raw.secuserdatacadastro!,
     })
   }
