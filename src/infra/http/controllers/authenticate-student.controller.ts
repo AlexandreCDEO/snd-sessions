@@ -43,7 +43,7 @@ export class AuthenticateStudentController {
 
     const result = await this.service.execute({
       username: username.trim().toUpperCase(),
-      password: password.trim().toUpperCase(),
+      password: password.trim(),
     })
 
     if (result.isFailure()) {

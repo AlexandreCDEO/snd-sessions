@@ -6,12 +6,13 @@ import { Registration } from 'src/domain/enterprise/entities/Registration'
 @Injectable()
 export class PrismaRegistrationsRepository implements RegistrationsRepository {
   constructor(private prisma: PrismaService) {}
-  async findByDocument(document: string): Promise<Registration[]> {
+  async findByDocument(companyId, document: string): Promise<Registration[]> {
     const result = await this.prisma.matricula.findMany({
       include: {
         participanteFilial: true,
       },
       where: {
+        empresaid: companyId,
         matriculasituacaoaluno: true,
         participanteFilial: {
           participantefilialcnpj: Number(document),

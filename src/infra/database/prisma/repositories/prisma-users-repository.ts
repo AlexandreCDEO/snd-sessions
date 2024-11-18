@@ -8,6 +8,18 @@ import { Injectable } from '@nestjs/common'
 @Injectable()
 export class PrismaUsersRepository implements UsersRepository {
   constructor(private prisma: PrismaService) {}
+
+  async update(userId: number, user: User): Promise<User | null> {
+    const updatedUser = await this.prisma.secUser.update({
+      where: { secuserid: userId },
+      data: PrismaUsersMapper.toPrisma(user),
+    })
+
+    if (!updatedUser) return null
+
+    return PrismaUsersMapper.toDomain(updatedUser)
+  }
+
   async searchUsers(page: number, perPage: number): Promise<User[]> {
     const skip = (page - 1) * perPage // Calcular quantos registros pular
     const users = await this.prisma.secUser.findMany({
@@ -29,7 +41,6 @@ export class PrismaUsersRepository implements UsersRepository {
         secuserid: userId,
       },
     })
-
     if (!user) {
       return null
     }
@@ -59,7 +70,7 @@ export class PrismaUsersRepository implements UsersRepository {
     if (!user) {
       return null
     }
-
+    console.log('Prisma User', user)
     return PrismaUsersMapper.toDomain(user)
   }
 

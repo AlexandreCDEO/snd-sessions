@@ -27,6 +27,8 @@ import { SecUserPassRepository } from './domain/application/repositories/secuser
 import { PrismaSecUserPassRepository } from './infra/database/prisma/repositories/prisma-secuserpass-repository'
 import { UserOccurrenciesRepository } from './domain/application/repositories/user-occurrencies-repository'
 import { PrismaUserOccurrenciesRepository } from './infra/database/prisma/repositories/prisma-user-occurrencies-repository'
+import { ChangePasswordController } from './infra/http/controllers/change-password.controller'
+import { ChangePasswordUseCase } from './domain/application/use-cases/change-password'
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { PrismaUserOccurrenciesRepository } from './infra/database/prisma/reposi
     SearchUserProfileController,
     SearchUsersController,
     AuthenticateStudentController,
+    ChangePasswordController,
   ],
   providers: [
     PrismaService,
@@ -50,6 +53,7 @@ import { PrismaUserOccurrenciesRepository } from './infra/database/prisma/reposi
     CreateUserUseCase,
     SearchUsersUseCase,
     AuthenticateStudentUseCase,
+    ChangePasswordUseCase,
     {
       provide: UsersRepository,
       useClass: PrismaUsersRepository,

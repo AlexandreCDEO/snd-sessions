@@ -62,7 +62,11 @@ export class AuthenticateStudentUseCase {
     const companyId = await this.findCompanyDefinedAsMain(companyGroup)
     if (!companyId) return failure(new CompanyDefinedAsMainNotExistsError())
 
-    const result = await this.findStudentByUsernameOrDocument(username)
+    const result = await this.findStudentByUsernameOrDocument(
+      companyId,
+      username,
+    )
+
     if (!result) return failure(new WrongCredentialsError())
     if (Array.isArray(result)) {
       const registrationCodes = result.map((registration) =>
@@ -80,12 +84,14 @@ export class AuthenticateStudentUseCase {
       studentFromRegistration,
       password,
     )
+
     if (passwordMatchesError) return failure(passwordMatchesError)
 
     const passwordExpired = await this.isPasswordExpired(
       studentFromRegistration.id,
       companyId,
     )
+    console.log('studentFound', studentFromRegistration)
     if (passwordExpired || studentFromRegistration.temporaryPassword)
       return success({
         shouldChangePassword: true,
@@ -148,13 +154,16 @@ export class AuthenticateStudentUseCase {
   }
 
   private async findStudentByUsernameOrDocument(
+    companyId: number,
     username: string,
   ): Promise<User | null | Registration[]> {
     const student = await this.usersRepository.findByUsername(username)
     if (student) return student
 
-    const registrations =
-      await this.registrationsRepository.findByDocument(username)
+    const registrations = await this.registrationsRepository.findByDocument(
+      companyId,
+      username,
+    )
 
     if (registrations) {
       if (registrations.length > 1) {
@@ -180,10 +189,11 @@ export class AuthenticateStudentUseCase {
       student.createdAt,
       OperationType.DESCRIPTOGRAFAR,
     )
-
+    console.log(password, decryptedPassword)
     if (!decryptedPassword) return new PasswordEncryptionError()
 
-    if (decryptedPassword !== password) return new WrongCredentialsError()
+    if (decryptedPassword.trim() !== password.trim())
+      return new WrongCredentialsError()
 
     return null
   }
