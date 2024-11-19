@@ -7,6 +7,7 @@ import { PasswordEncryptionError } from './errors/password-encryption-error'
 import { PasswordMissmatchError } from './errors/password-missmatch-error'
 import { UserUpdateError } from './errors/user-update-error'
 import { Injectable } from '@nestjs/common'
+import { InvalidCurrentPasswordError } from './errors/invalid-current-password-error'
 
 interface ChangePasswordUseCaseProps {
   userId: number
@@ -16,7 +17,10 @@ interface ChangePasswordUseCaseProps {
 }
 
 type ChangePasswordUseCaseResponse = Either<
-  WrongCredentialsError | PasswordEncryptionError | PasswordMissmatchError,
+  | WrongCredentialsError
+  | PasswordEncryptionError
+  | PasswordMissmatchError
+  | InvalidCurrentPasswordError,
   { user: User }
 >
 
@@ -94,7 +98,7 @@ export class ChangePasswordUseCase {
 
     if (!decryptedPassword) return new PasswordEncryptionError()
 
-    if (decryptedPassword !== password) return new WrongCredentialsError()
+    if (decryptedPassword !== password) return new InvalidCurrentPasswordError()
 
     return null
   }

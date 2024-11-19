@@ -15,6 +15,7 @@ import { ZodValidationPipe } from '../pipes/zod-validation-pipe'
 import { WrongCredentialsError } from 'src/domain/application/use-cases/errors/wrong-credentials-errors'
 import { PasswordEncryptionError } from 'src/domain/application/use-cases/errors/password-encryption-error'
 import { PasswordMissmatchError } from 'src/domain/application/use-cases/errors/password-missmatch-error'
+import { InvalidCurrentPasswordError } from 'src/domain/application/use-cases/errors/invalid-current-password-error'
 
 const changePasswordBodySchema = z.object({
   id: z.number().min(1, { message: 'O id é obrigatório' }),
@@ -50,6 +51,9 @@ export class ChangePasswordController {
 
       switch (error.constructor) {
         case WrongCredentialsError:
+          throw new UnauthorizedException(error.message)
+
+        case InvalidCurrentPasswordError:
           throw new UnauthorizedException(error.message)
 
         case PasswordEncryptionError:

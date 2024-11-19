@@ -94,6 +94,7 @@ export class AuthenticateStudentUseCase {
     console.log('studentFound', studentFromRegistration)
     if (passwordExpired || studentFromRegistration.temporaryPassword)
       return success({
+        student: studentFromRegistration,
         shouldChangePassword: true,
       })
 

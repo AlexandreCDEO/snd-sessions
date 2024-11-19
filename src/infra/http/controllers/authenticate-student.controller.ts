@@ -77,14 +77,16 @@ export class AuthenticateStudentController {
 
     let token: string | undefined
 
-    if (data.student) {
+    if (data.student && !data.shouldChangePassword) {
       token = this.jwt.sign({ sub: data.student.id })
     }
 
     return {
       token: token ?? null,
       registrations: data.registrations ?? [],
-      shouldChangePassword: data.shouldChangePassword ?? false,
+      userIdToChangePassword: data.shouldChangePassword
+        ? data.student?.id
+        : null,
     }
   }
 }
