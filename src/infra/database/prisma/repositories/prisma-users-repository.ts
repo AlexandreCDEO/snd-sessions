@@ -4,10 +4,92 @@ import { OperationType } from '../../../../core/enums/operation-type'
 import { PrismaUsersMapper } from '../mappers/prisma-users-mapper'
 import { PrismaService } from '../prisma.service'
 import { Injectable } from '@nestjs/common'
+import { TypeOccurrency } from 'src/core/enums/type-occurrency'
 
 @Injectable()
 export class PrismaUsersRepository implements UsersRepository {
   constructor(private prisma: PrismaService) {}
+  async changeUserPasswords(
+    companyId: number,
+    userId: number,
+    newPassword: string,
+  ): Promise<boolean> {
+    const result = await this.prisma.$queryRaw<
+      { secuserid: number; secusername: string; secuserdataCadastro: Date }[]
+    >`
+      SELECT "secuserid", "secusername", "secuserdatacadastro" FROM "secuser"
+      WHERE "secusername" IN (
+        SELECT b."matriculacodigo" FROM "secparticipante" a
+        JOIN "participante" c ON a."empresaid" = c."empresaid" AND a."participantecodigo" = c."participantecodigo"
+        JOIN "participantefilial" d ON c."empresaid" = d."empresaid" AND c."participantecodigo" = d."participantecodigo"
+        JOIN "matricula" b ON b."empresaid" = d."empresaid" AND b."alunoparticipantecod" = d."participantecodigo" AND b."alunoparticipantefilialcod" = d."participantefilialcodigo"
+        WHERE a."empresaid" = ${companyId} AND a."secuserid" = ${userId})`
+
+    if (result && result.length > 0) {
+      const updatedUsers = await Promise.all(
+        result.map(async (user) => {
+          const encryptedPassword = await this.cryptography(
+            newPassword,
+            user.secuserdataCadastro,
+            OperationType.CRIPTOGRAFAR,
+          )
+          if (!encryptedPassword) {
+            throw new Error(
+              `Erro ao realizar a criptografia de senha. Tente novamente mais tarde!`,
+            )
+          }
+
+          return {
+            secUserId: user.secuserid,
+            secUserName: user.secusername,
+            encryptedPassword,
+          }
+        }),
+      )
+
+      try {
+        const transactionPromises = updatedUsers.flatMap((user) => [
+          // Atualizar a senha do usuário
+          this.prisma.secUser.update({
+            where: { secuserid: user.secUserId },
+            data: {
+              secuserpassword: user.encryptedPassword,
+              secusersenhaprovisoria: false,
+            },
+          }),
+
+          // Inserir registro em SecUserPass
+          this.prisma.secUserPass.create({
+            data: {
+              secuserid: user.secUserId,
+              secuserpassdata: new Date(),
+              secuserpassreg: user.encryptedPassword,
+            },
+          }),
+
+          // Inserir registro em UsuOco
+          this.prisma.usuOco.create({
+            data: {
+              usucod: user.secUserName,
+              usudtaoco: new Date(),
+              usutipoco: TypeOccurrency.TROCA_SENHA,
+              usucoddes: '[...]',
+              usumenoco: 'TROCA_SENHA',
+            },
+          }),
+        ])
+
+        // Executar todas as operações dentro de uma transação
+        await this.prisma.$transaction(transactionPromises)
+        return true
+      } catch (error) {
+        console.error('Erro ao atualizar usuários:', error)
+        throw new Error(`Erro ao alterar a senha`)
+      }
+    } else {
+      return false
+    }
+  }
 
   async update(userId: number, user: User): Promise<User | null> {
     const updatedUser = await this.prisma.secUser.update({

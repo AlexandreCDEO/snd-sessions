@@ -156,7 +156,11 @@ export class ChangePasswordUseCase {
     if (!hashedPassword) return failure(new PasswordEncryptionError())
 
     const isSuccessfullyChanged =
-      await this.usersRepository.changeUserPasswords(userId, newPassword)
+      await this.usersRepository.changeUserPasswords(
+        companyId,
+        userId,
+        newPassword,
+      )
 
     if (!isSuccessfullyChanged) return failure(new UserUpdateError())
 
