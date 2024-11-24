@@ -9,6 +9,11 @@ export abstract class UsersRepository {
   abstract findByUsername(username: string): Promise<User | null>
   abstract findById(userId: number): Promise<User | null>
   abstract findByEmail(email: string): Promise<User | null>
+  abstract changeUserPasswords(
+    userId: number,
+    newPassword: string,
+  ): Promise<boolean>
+
   abstract cryptography(
     password: string,
     registrationDate: Date,

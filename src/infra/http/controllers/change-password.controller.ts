@@ -16,6 +16,7 @@ import { WrongCredentialsError } from 'src/domain/application/use-cases/errors/w
 import { PasswordEncryptionError } from 'src/domain/application/use-cases/errors/password-encryption-error'
 import { PasswordMissmatchError } from 'src/domain/application/use-cases/errors/password-missmatch-error'
 import { InvalidCurrentPasswordError } from 'src/domain/application/use-cases/errors/invalid-current-password-error'
+import { NewPasswordEqualError } from 'src/domain/application/use-cases/errors/new-password-equal-error'
 
 const changePasswordBodySchema = z.object({
   id: z.number().min(1, { message: 'O id é obrigatório' }),
@@ -60,6 +61,9 @@ export class ChangePasswordController {
           throw new InternalServerErrorException(error.message)
 
         case PasswordMissmatchError:
+          throw new UnprocessableEntityException(error.message)
+
+        case NewPasswordEqualError:
           throw new UnprocessableEntityException(error.message)
 
         default:

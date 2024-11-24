@@ -54,6 +54,8 @@ model Participante {
   matrizcurricularDesativacao Matrizcurricular[] @relation("ParticipanteDesativacao")
 
   participanteFiliais ParticipanteFilial[]
+
+  users SecParticipante[]
  
   @@id([empresaid, participantecodigo])
 
@@ -232,6 +234,8 @@ model SecUser {
   secuseremail            String?                   @db.VarChar(100)
   secuserstatus           String?                   @db.VarChar(1)
 
+  participantes SecParticipante[]
+  historicoSenhas SecUserPass[]
   @@map("secuser")
 }
 
@@ -501,9 +505,11 @@ model PolSegNro {
 }
 
 model SecUserPass {
-  secuserid       Int
   secuserpassdata DateTime @db.Timestamp(6)
   secuserpassreg  String   @db.VarChar(100)
+
+  secuser SecUser @relation(fields: [secuserid], references: [secuserid])
+  secuserid       Int
 
   @@id([secuserid, secuserpassdata])
 
@@ -567,6 +573,18 @@ model UsuOco {
   @@index([usucod, usudtaoco(sort: Desc)], map: "uusua083")
 
   @@map("usuoco")
+}
+
+model SecParticipante {
+  secuser            SecUser      @relation(fields: [secuserid], references: [secuserid])
+  secuserid          Int
+
+  participante       Participante @relation(fields: [empresaid, participantecodigo], references: [empresaid, participantecodigo])
+  empresaid          Int
+  participantecodigo BigInt
+
+  @@id([empresaid, participantecodigo, secuserid])
+  @@index([secuserid], map: "isecparticipante1")
 }
 
 
