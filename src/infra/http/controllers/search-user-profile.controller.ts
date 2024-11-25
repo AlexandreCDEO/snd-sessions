@@ -21,9 +21,7 @@ export class SearchUserProfileController {
   @HttpCode(200)
   async handle(@CurrentUser() payload: TokenPayload) {
     const userId = payload.sub
-    console.log('userId', userId)
     const result = await this.service.execute({ userId })
-    console.log('result', result)
     if (result.isFailure()) {
       const error = result.value
 
